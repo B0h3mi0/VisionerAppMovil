@@ -2,9 +2,11 @@ package com.example.appmov.screens
 
 
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import com.example.appmov.utils.RegistroUtils
 import org.junit.Rule
 import org.junit.Test
 
@@ -17,21 +19,26 @@ class LoginTest {
     fun loginScreen_usuarioValido_simulado() {
         var loginSuccess = false
 
-        // Renderizamos LoginApp (sin cambios)
         composeTestRule.setContent {
             LoginScreen(
-                onHomeClick = { loginSuccess = true } // Simulamos éxito
+                onHomeClick = { loginSuccess = true },
+                onForgotPassword = {},
+                onBack = {},
+                onRegisterClick = {},
+                autenticarFn = { correo, password ->
+                    if (correo == "sebascarrenom@gmail.com" && password == "123456") {
+                        RegistroUtils.LoginResult(true)
+                    } else {
+                        RegistroUtils.LoginResult(false, "Usuario o contraseña incorrectos")
+                    }
+                }
             )
         }
 
-        // Simulamos entrada de usuario válido
-        composeTestRule.onNodeWithText("Ingrese correo").performTextInput("sebascarrenom@gmail.com")
-        composeTestRule.onNodeWithText("Contraseña").performTextInput("123456")
+        composeTestRule.onNodeWithTag("correoField").performTextInput("sebascarrenom@gmail.com")
+        composeTestRule.onNodeWithTag("passwordField").performTextInput("123456")
+        composeTestRule.onNodeWithTag("loginButton").performClick()
 
-        // Simulamos clic en botón
-        composeTestRule.onNodeWithText("Iniciar sesión").performClick()
-
-        // Como en este test simulamos login correcto → debe ser true
         assert(loginSuccess)
     }
 
@@ -42,16 +49,19 @@ class LoginTest {
         // Renderizamos LoginApp (sin cambios)
         composeTestRule.setContent {
             LoginScreen(
-                onHomeClick = { loginSuccess = true } // Simulamos éxito
+                onHomeClick = { loginSuccess = true }, // Simulamos éxito
+                onForgotPassword = {},
+                onBack = {},
+                onRegisterClick = {}
             )
         }
 
         // Simulamos entrada de usuario inválido
-        composeTestRule.onNodeWithText("Ingrese correo").performTextInput("otro@mail.com")
-        composeTestRule.onNodeWithText("Contraseña").performTextInput("wrong")
+        composeTestRule.onNodeWithTag("correoField").performTextInput("otro@mail.com")
 
-        // Simulamos clic en botón
-        composeTestRule.onNodeWithText("Iniciar sesión").performClick()
+        composeTestRule.onNodeWithTag("passwordField").performTextInput("wrong")
+
+        composeTestRule.onNodeWithTag("loginButton").performClick()
 
         // En este caso esperamos que loginSuccess siga en false
         assert(!loginSuccess)

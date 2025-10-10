@@ -61,7 +61,8 @@ class FakeGastoViewModelDetalle : GastoViewModel() {
 fun DetalleGastosScreen(
     categoria: String,
     viewModel: GastoViewModel,
-    navController: NavController
+    navController: NavController,
+    onBack: () -> Unit = {}
 ) {
     val gastos = viewModel.gastosPorCategoriaFlow(categoria).collectAsState().value
     var showDialog by remember { mutableStateOf(false) }
@@ -69,36 +70,10 @@ fun DetalleGastosScreen(
     Scaffold(
         /************************************ TOPBAR *********************************/
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = categoria,
-                        fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = "Volver"
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { /* Ajustes */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Settings,
-                            contentDescription = "Ajustes"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Azuloscuro,
-                    titleContentColor = Amarillopalido,
-                    navigationIconContentColor = Amarillomostaza,
-                    actionIconContentColor = Amarillomostaza
-                )
+            SimpleTopbar(
+                title = "Detalle gastos de $categoria",
+                showBack = true,
+                onBack = onBack
             )
         },
         /************************************ TOPBAR *********************************/

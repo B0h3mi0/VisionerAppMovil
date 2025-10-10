@@ -9,4 +9,5 @@ object Routes {
     var CONFG_FUENTE = "FuenteConfigScreen"
 
     var NOTICIAS = "NoticiaScreen"
+    var FORGOTPASS ="ForgotPasswordScreen"
 }

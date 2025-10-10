@@ -33,9 +33,9 @@ open class GastoViewModel : ViewModel() {
         }.stateIn(viewModelScope, SharingStarted.Eagerly, 0L)
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun addGasto(categoria: String, descripcion: String, monto: Long, fecha: LocalDate = LocalDate.now()) {
+    fun addGasto(categoria: String, descripcion: String, monto: Long ) {
         viewModelScope.launch {
-            repo.addGasto(Gasto(id = 0L, categoria = categoria, descripcion = descripcion, monto = monto, fecha = fecha))
+            repo.addGasto(Gasto(id = 0L, categoria = categoria, descripcion = descripcion, monto = monto, fecha =  LocalDate.now()))
         }
     }
 

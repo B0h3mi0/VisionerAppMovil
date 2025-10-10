@@ -43,6 +43,7 @@ android {
 dependencies {
     // Room
     implementation ("androidx.room:room-runtime:2.6.1")
+    implementation(libs.material3)
     kapt ("androidx.room:room-compiler:2.6.1")
 
 // Kotlin Extensions and Coroutines support

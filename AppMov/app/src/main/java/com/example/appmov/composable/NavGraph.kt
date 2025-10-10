@@ -20,6 +20,7 @@ import com.example.appmov.screens.DetalleGastosScreen
 import com.example.appmov.viewmodel.GastoViewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.example.appmov.screens.ForgotPasswordScreen
 import com.example.appmov.screens.FragmentView
 import com.example.appmov.screens.FuenteConfigScreen
 import com.example.appmov.screens.NoticiaScreen
@@ -44,16 +45,28 @@ fun AppNav(fontSizeState: MutableState<Float>) {
         }
         composable(Routes.LOGIN) {
             LoginScreen(
-                onHomeClick = { navController.navigate(Routes.HOME) }
+                onHomeClick = { navController.navigate(Routes.HOME) },
+                onForgotPassword = {navController.navigate(Routes.FORGOTPASS) },
+                onBack = { navController.popBackStack() },
+                onRegisterClick = { navController.navigate(Routes.REGISTRO)}
             )
         }
         composable(Routes.REGISTRO) {
             RegistroScreen(
-                onRegistroClick = { navController.navigate(Routes.LOGIN) }
+                onRegistroClick = { navController.navigate(Routes.LOGIN) },
+                onBack = { navController.popBackStack() }
             )
         }
         composable(Routes.HOME) {
-            HomeScreen(navController = navController, viewModel = gastoViewModel)
+            HomeScreen(
+                navController = navController,
+                viewModel = gastoViewModel,
+                onBack = { navController.popBackStack() },
+                onNavigateToLogin = { navController.navigate(Routes.LOGIN) },
+                onNavigateToHome = { navController.navigate(Routes.HOME) },
+                onNavigateToApi = { navController.navigate(Routes.NOTICIAS) },
+
+            )
         }
         composable(
             "detalle/{categoria}",
@@ -63,7 +76,8 @@ fun AppNav(fontSizeState: MutableState<Float>) {
             DetalleGastosScreen(
                 categoria = cat,
                 viewModel = gastoViewModel,
-                navController = navController
+                navController = navController,
+                onBack = { navController.popBackStack() }
             )
         }
         composable(Routes.CONFG_FUENTE) {
@@ -73,7 +87,15 @@ fun AppNav(fontSizeState: MutableState<Float>) {
             )
         }
         composable (Routes.NOTICIAS){
-            NoticiaScreen()
+            NoticiaScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable (Routes.FORGOTPASS){
+            ForgotPasswordScreen(
+                onBack = { navController.popBackStack() },
+                onSendMail = { navController.navigate(Routes.LOGIN)}
+            )
         }
     }
 }

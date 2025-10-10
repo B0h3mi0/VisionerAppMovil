@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
@@ -33,14 +34,19 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -63,13 +69,27 @@ import com.example.appmov.ui.theme.Negrocool
 import com.example.appmov.ui.theme.Verdeprincipal
 import com.example.appmov.viewmodel.GastoViewModel
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 
-fun HomeScreen(navController: NavController, viewModel: GastoViewModel) {
+fun HomeScreen(
+    navController: NavController,
+    viewModel: GastoViewModel,
+    onBack: () -> Unit = {},
+    onNavigateToHome: () -> Unit = {},
+    onNavigateToApi: () -> Unit = {},
+    onNavigateToLogin: () -> Unit = {}
+
+) {
     val saldo by viewModel.saldoDisponible.collectAsState()
     val categorias by viewModel.categoriasConTotales.collectAsState()
+    var showDialog by remember { mutableStateOf(false) }
+    var categoria by remember { mutableStateOf("") }
+    var descripcion by remember { mutableStateOf("") }
+    var monto by remember { mutableStateOf("") }
 
     fun formatoSimple(valor: Long): String {
         return "$" + "%,d".format(valor).replace(",", ".")
@@ -85,52 +105,21 @@ fun HomeScreen(navController: NavController, viewModel: GastoViewModel) {
 
         /************************************TOPBAR*********************************/
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        "VisionerApp",
-                        fontSize = 30.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { /* TODO menú lateral */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Menú"
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { /* TODO: ajustes */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Settings,
-                            contentDescription = "Ajustes"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Azuloscuro,
-                    titleContentColor = Amarillopalido,
-                    navigationIconContentColor = Amarillomostaza,
-                    actionIconContentColor = Amarillomostaza
-                )
+            SimpleTopbar(
+                title = "Home",
+                showBack = false,
+                onNavigateToApi = onNavigateToApi,
+                onNavigateToLogin = onNavigateToLogin,
+                onNavigateToHome = onNavigateToHome
             )
         },
         /************************************TOPBAR*********************************/
 
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {
-                    // Aquí iría la navegación a pantalla para registrar gasto
-                },
+                onClick = { showDialog = true },
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                elevation = FloatingActionButtonDefaults.elevation(
-                    defaultElevation = 6.dp,
-                    pressedElevation = 8.dp
-                ),
-                shape = MaterialTheme.shapes.large
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Agregar Gasto")
             }
@@ -237,6 +226,55 @@ fun HomeScreen(navController: NavController, viewModel: GastoViewModel) {
                 }
             }
         }
+
+    }
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (categoria.isNotBlank() && descripcion.isNotBlank() && monto.isNotBlank()) {
+                        viewModel.addGasto(
+                            categoria,
+                            descripcion,
+                            monto.toLongOrNull() ?: 0L
+                        )
+                        showDialog = false
+                        categoria = ""
+                        descripcion = ""
+                        monto = ""
+
+                    }
+                }) {
+                    Text("Guardar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("Cancelar")
+                }
+            },
+            title = { Text("Registrar nuevo gasto") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = categoria,
+                        onValueChange = { categoria = it },
+                        label = { Text("Categoría") }
+                    )
+                    OutlinedTextField(
+                        value = descripcion,
+                        onValueChange = { descripcion = it },
+                        label = { Text("Agregar gastos.") }
+                    )
+                    OutlinedTextField(
+                        value = monto,
+                        onValueChange = { monto = it },
+                        label = { Text("Monto") }
+                    )
+                }
+            }
+        )
     }
 }
 
